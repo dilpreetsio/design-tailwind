@@ -1,24 +1,25 @@
-import { useState } from "react";
 import Accordian from "./Accordian";
 
 type Props = {
+  code: string;
   containerElement: HTMLElement | undefined;
   clickHandler: (path: string) => void;
 };
 
 const DomTreeComponent = (props: Props) => {
-  console.log(props.containerElement);
+  const element = document.createElement("div");
+  element.innerHTML = props.code;
+
   const generateDomTree = (element: HTMLElement, path: string): any => {
     const children = element.children;
 
-    console.log(children.length);
     let node = (
       <>
         {Array.from(children).map((child, index) => (
           <Accordian
             key={`${child}_${index}`}
             title={child.tagName.toLowerCase()}
-            className="pl-1"
+            className="pl-1.5"
             path={`${path}-${index}`}
             clickHandler={props.clickHandler}
           >
@@ -32,12 +33,7 @@ const DomTreeComponent = (props: Props) => {
     return node;
   };
 
-  return (
-    <div>
-      {props.containerElement?.innerHTML &&
-        generateDomTree(props.containerElement, "#")}
-    </div>
-  );
+  return <div>{element && generateDomTree(element, "#")}</div>;
 };
 
 export default DomTreeComponent;

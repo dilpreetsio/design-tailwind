@@ -2,7 +2,7 @@ import CodeElement from "@/components/CodeElement";
 import DomTreeComponent from "@/components/DomTreeComponent";
 import Search from "@/components/Search";
 import Head from "next/head";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const [currentClasses, setCurrentClasses] = useState<string[]>([]);
@@ -29,7 +29,7 @@ export default function Home() {
   }, [code]);
 
   const elementClickHandler = (path: string) => {
-    let element = root as HTMLElement;
+    let element = codeRef.current as HTMLElement;
     const pathElements = path.split("-");
     pathElements.shift();
 
@@ -54,7 +54,6 @@ export default function Home() {
     setCurrentClasses(currentClasses.filter((cl) => cl !== c));
   };
 
-  console.log(codeRef.current?.innerHTML);
   return (
     <main className="sm:h-screen">
       <Head>
@@ -65,8 +64,9 @@ export default function Home() {
         <div className="w-full h-4/6 flex flex-row flex-1">
           <div className="w-1/3 p-2 py-5 px-3">
             <div className="p-2 border rounded-xl h-fit overflow-y-auto">
-              {codeRef?.current?.innerHTML && (
+              {code && (
                 <DomTreeComponent
+                  code={code}
                   containerElement={root}
                   clickHandler={elementClickHandler}
                 />
