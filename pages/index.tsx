@@ -1,25 +1,47 @@
 import CodeElement from "@/components/CodeElement";
+import DomTreeComponent from "@/components/DomTreeComponent";
 import Search from "@/components/Search";
 import Head from "next/head";
-import React, { useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const [currentClasses, setCurrentClasses] = useState<string[]>([]);
   const [currentElement, setCurrentElement] = useState<HTMLElement>();
-  const [code, setCode] = useState(
-    `<button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Default</button>`
-  );
+  const [root, setRoot] = useState<HTMLElement>();
+  const [code, setCode] = useState(``);
+  const defaultCode = `<button type="button" class="text-white bg-blue-700
+  hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg
+  text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700
+  focus:outline-none dark:focus:ring-blue-800">Design tailwind</button>`;
+  const codeRef = useRef<HTMLDivElement>(null);
 
-  const elementClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const element = e.target as HTMLDivElement;
-
-    if (!element.className.includes("wrapper-container-element")) {
-      const classes = element.className.split(" ");
-
-      setCurrentElement(element);
-      setCurrentClasses(classes);
+  useEffect(() => {
+    if (codeRef.current) {
+      setCode(defaultCode);
     }
+  }, []);
+
+  useEffect(() => {
+    if (codeRef.current) {
+      codeRef.current.innerHTML = code;
+      setRoot(codeRef.current);
+    }
+  }, [code]);
+
+  const elementClickHandler = (path: string) => {
+    let element = root as HTMLElement;
+    const pathElements = path.split("-");
+    pathElements.shift();
+
+    if (element) {
+      pathElements.forEach((index) => {
+        const children = element.children;
+        element = children[parseInt(index)] as HTMLElement;
+      });
+    }
+
+    setCurrentElement(element);
+    setCurrentClasses(Array.from(element?.classList || []));
   };
 
   const addClass = (c: string) => {
@@ -32,21 +54,29 @@ export default function Home() {
     setCurrentClasses(currentClasses.filter((cl) => cl !== c));
   };
 
+  console.log(codeRef.current?.innerHTML);
   return (
-    <main className="min-h-screen">
+    <main className="sm:h-screen">
       <Head>
         <script async src="https://cdn.tailwindcss.com"></script>
       </Head>
-      <div className="flex flex-col h-5/6">
-        <div className="w-full h-full flex flex-row items-center justify-center flex-1">
-          <div className="w-2/3 p-2">
-            <div
-              className="wrapper-container-element"
-              dangerouslySetInnerHTML={{ __html: code }}
-              onClick={(e) => elementClickHandler(e)}
-            ></div>
+
+      <div className="flex flex-col h-full">
+        <div className="w-full h-4/6 flex flex-row flex-1">
+          <div className="w-1/3 p-2 py-5 px-3">
+            <div className="p-2 border rounded-xl h-fit overflow-y-auto">
+              {codeRef?.current?.innerHTML && (
+                <DomTreeComponent
+                  containerElement={root}
+                  clickHandler={elementClickHandler}
+                />
+              )}
+            </div>
           </div>
-          <div className="w-1/3 p-2">
+          <div className="w-1/3 p-2 flex flex-col items-center justify-center">
+            <div className="wrapper-container-element" ref={codeRef}></div>
+          </div>
+          <div className="w-1/3 py-5 px-3">
             <Search
               classes={currentClasses}
               addClass={addClass}
@@ -54,7 +84,6 @@ export default function Home() {
             />
           </div>
         </div>
-
         <CodeElement
           code={code}
           changeHandler={(code) => setCode(code || " ")}

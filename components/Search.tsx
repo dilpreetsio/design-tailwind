@@ -1,14 +1,17 @@
 import { tailwindCSS } from "../data/classes";
 import { useEffect, useState } from "react";
-
+import ClickOutsideComponent from "./ClickOutsideComponent";
 const Search = ({ classes, addClass, removeClass }: SearchProps) => {
   const [search, setSearch] = useState<string>("");
   const [filteredClasses, setFilteredClasses] = useState<string[]>([]);
+
   useEffect(() => {
-    const filtered = tailwindCSS.filter((c) =>
-      c.toLowerCase().includes(search.toLowerCase())
-    );
-    setFilteredClasses(filtered);
+    if (search.length > 0) {
+      const filtered = tailwindCSS.filter((c) =>
+        c.toLowerCase().startsWith(search.toLowerCase())
+      );
+      setFilteredClasses(filtered);
+    }
   }, [search]);
 
   return (
@@ -28,9 +31,9 @@ const Search = ({ classes, addClass, removeClass }: SearchProps) => {
             >
               <path
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
                 d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
               />
             </svg>
@@ -44,8 +47,13 @@ const Search = ({ classes, addClass, removeClass }: SearchProps) => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {search && search.length > 0 && (
-          <div className="absolute bg-white top-10 h-80 z-50 rounded-lg border overflow-auto">
+        {filteredClasses.length > 0 && (
+          <ClickOutsideComponent
+            outsideClickHandler={() => {
+              setFilteredClasses([]);
+            }}
+            className="absolute bg-white top-10 max-h-80 w-full z-50 rounded-lg border overflow-auto"
+          >
             {filteredClasses.map((c: string) => (
               <div
                 key={c}
@@ -55,7 +63,7 @@ const Search = ({ classes, addClass, removeClass }: SearchProps) => {
                 {c}
               </div>
             ))}
-          </div>
+          </ClickOutsideComponent>
         )}
       </form>
       {classes.length > 0 && (
@@ -83,9 +91,9 @@ const Search = ({ classes, addClass, removeClass }: SearchProps) => {
                 >
                   <path
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                   />
                 </svg>
