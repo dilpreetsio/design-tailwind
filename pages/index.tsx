@@ -1,5 +1,7 @@
 import CodeElement from "@/components/CodeElement";
+import CodeExporter from "@/components/CodeExporter";
 import DomTreeComponent from "@/components/DomTreeComponent";
+import Nav from "@/components/Nav";
 import Search from "@/components/Search";
 import Head from "next/head";
 import React, { useEffect, useRef, useState } from "react";
@@ -9,6 +11,8 @@ export default function Home() {
   const [currentElement, setCurrentElement] = useState<HTMLElement>();
   const [root, setRoot] = useState<HTMLElement>();
   const [code, setCode] = useState(``);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
   const defaultCode = `<button type="button" class="text-white bg-blue-700
   hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg
   text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700
@@ -54,12 +58,13 @@ export default function Home() {
     setCurrentClasses(currentClasses.filter((cl) => cl !== c));
   };
 
+  console.log(codeRef.current?.innerHTML);
   return (
     <main className="sm:h-screen">
       <Head>
         <script async src="https://cdn.tailwindcss.com"></script>
       </Head>
-
+      <Nav toggleModal={() => setIsExportModalOpen(!isExportModalOpen)} />
       <div className="flex flex-col h-full">
         <div className="w-full h-4/6 flex flex-row flex-1">
           <div className="w-1/3 p-2 py-5 px-3">
@@ -89,6 +94,12 @@ export default function Home() {
           changeHandler={(code) => setCode(code || " ")}
         />
       </div>
+      {isExportModalOpen && (
+        <CodeExporter
+          toggleModal={() => setIsExportModalOpen(!isExportModalOpen)}
+          code={codeRef.current?.innerHTML || ""}
+        />
+      )}
     </main>
   );
 }
